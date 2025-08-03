@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: aeon-chroma
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_HOST=0.0.0.0
+      - CHROMA_SERVER_HTTP_PORT=8000
+    networks:
+      - aeon-network
+
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: aeon-neo4j
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/aeon123456  # Default password for development
+      - NEO4J_PLUGINS=["apoc"]    # Install APOC plugin for advanced operations
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+    networks:
+      - aeon-network
+
+volumes:
+  chroma_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:
+
+networks:
+  aeon-network:
+    driver: bridge 
