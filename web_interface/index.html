@@ -42,185 +42,517 @@
             height: 300px;
             overflow-y: auto;
         }
+
+        .login-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="gradient-bg text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <i class="fas fa-robot text-2xl mr-3"></i>
-                    <h1 class="text-xl font-bold">AEON Digital AI Twin</h1>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <div class="text-center mb-8">
+                <i class="fas fa-robot text-4xl text-blue-600 mb-4"></i>
+                <h1 class="text-2xl font-bold text-gray-900">AEON Digital AI Twin</h1>
+                <p class="text-gray-600 mt-2">Sign in to access your AI assistant</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input type="text" id="login-username" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Enter your username">
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <span class="status-indicator status-online" id="server-status"></span>
-                        <span class="text-sm">Server Status</span>
-                    </div>
-                    <button class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all" onclick="refreshStatus()">
-                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" id="login-password" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="Enter your password">
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-600">Demo Accounts:</p>
+                <div class="mt-2 space-y-1">
+                    <button onclick="fillCredentials('god_aeon', 'GodAeon2025!@#')" 
+                            class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200">
+                        GOD AEON (Master)
+                    </button>
+                    <button onclick="fillCredentials('aeon_assistant', 'AeonAssistant2025!@#')" 
+                            class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 ml-2">
+                        AEON Assistant
                     </button>
                 </div>
             </div>
+            
+            <div id="login-error" class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg hidden"></div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Status Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                        <i class="fas fa-database text-xl"></i>
+    <!-- Main Dashboard (Hidden until login) -->
+    <div id="dashboard" class="hidden">
+        <!-- Navigation -->
+        <nav class="gradient-bg text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <i class="fas fa-robot text-2xl mr-3"></i>
+                        <h1 class="text-xl font-bold">AEON Digital AI Twin</h1>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Database</h3>
-                        <p class="text-sm text-gray-600" id="db-status">Checking...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                        <i class="fas fa-brain text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">AI Services</h3>
-                        <p class="text-sm text-gray-600" id="ai-status">Checking...</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                        <i class="fas fa-envelope text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Email</h3>
-                        <p class="text-sm text-gray-600" id="email-status">Not Configured</p>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <span class="status-indicator status-online" id="server-status"></span>
+                            <span class="text-sm">Server Status</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm">Welcome, <span id="user-display-name">User</span></span>
+                            <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded" id="user-role">User</span>
+                        </div>
+                        <button class="bg-white bg-opacity-20 px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all" onclick="refreshStatus()">
+                            <i class="fas fa-sync-alt mr-2"></i>Refresh
+                        </button>
+                        <button class="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600 transition-all" onclick="logout()">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-orange-100 text-orange-600">
-                        <i class="fas fa-globe text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Web Activity</h3>
-                        <p class="text-sm text-gray-600" id="web-status">Not Tracking</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </nav>
 
-        <!-- Main Dashboard -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Chat Interface -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-md">
-                    <div class="border-b border-gray-200 px-6 py-4">
-                        <h2 class="text-lg font-semibold text-gray-900">Chat with AEON</h2>
-                        <p class="text-sm text-gray-600">Test the AI conversation capabilities</p>
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Status Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-database text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Database</h3>
+                            <p class="text-sm text-gray-600" id="db-status">Checking...</p>
+                        </div>
                     </div>
-                    <div class="p-6">
-                        <div class="chat-container bg-gray-50 rounded-lg p-4 mb-4" id="chat-messages">
-                            <div class="text-center text-gray-500">
-                                <i class="fas fa-comments text-2xl mb-2"></i>
-                                <p>Start a conversation with AEON...</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-brain text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">AI Services</h3>
+                            <p class="text-sm text-gray-600" id="ai-status">Checking...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Email</h3>
+                            <p class="text-sm text-gray-600" id="email-status">Not Configured</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-orange-100 text-orange-600">
+                            <i class="fas fa-globe text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Web Activity</h3>
+                            <p class="text-sm text-gray-600" id="web-status">Not Tracking</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Chat Feature -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('chat')">
+                    <div class="text-center">
+                        <i class="fas fa-comments text-3xl text-blue-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">AI Chat</h3>
+                        <p class="text-sm text-gray-600">Conversational AI with memory and context</p>
+                    </div>
+                </div>
+
+                <!-- Memory Management -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('memory')">
+                    <div class="text-center">
+                        <i class="fas fa-memory text-3xl text-purple-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Memory System</h3>
+                        <p class="text-sm text-gray-600">Long-term memory and knowledge management</p>
+                    </div>
+                </div>
+
+                <!-- RAG System -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('rag')">
+                    <div class="text-center">
+                        <i class="fas fa-search text-3xl text-green-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">RAG System</h3>
+                        <p class="text-sm text-gray-600">Retrieval-Augmented Generation</p>
+                    </div>
+                </div>
+
+                <!-- Email Integration -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('email')">
+                    <div class="text-center">
+                        <i class="fas fa-envelope text-3xl text-indigo-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Email Integration</h3>
+                        <p class="text-sm text-gray-600">Email reading and analysis</p>
+                    </div>
+                </div>
+
+                <!-- Web Activity -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('web')">
+                    <div class="text-center">
+                        <i class="fas fa-globe text-3xl text-orange-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Web Activity</h3>
+                        <p class="text-sm text-gray-600">Browser activity tracking and analysis</p>
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div class="feature-card bg-white rounded-lg shadow-md p-6" onclick="showFeature('users')">
+                    <div class="text-center">
+                        <i class="fas fa-users text-3xl text-red-600 mb-4"></i>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">User Management</h3>
+                        <p class="text-sm text-gray-600">Manage users and permissions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Content Areas -->
+            <div id="feature-content" class="hidden">
+                <!-- Chat Interface -->
+                <div id="chat-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Chat with AEON</h2>
+                            <p class="text-sm text-gray-600">Intelligent conversation with memory and context</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="chat-container bg-gray-50 rounded-lg p-4 mb-4" id="chat-messages">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-comments text-2xl mb-2"></i>
+                                    <p>Start a conversation with AEON...</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <input type="text" id="chat-input" placeholder="Type your message..." 
+                                       class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button onclick="sendMessage()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="flex space-x-2">
-                            <input type="text" id="chat-input" placeholder="Type your message..." 
-                                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <button onclick="sendMessage()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                    </div>
+                </div>
+
+                <!-- Memory Interface -->
+                <div id="memory-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Memory Management</h2>
+                            <p class="text-sm text-gray-600">View and manage your AI's memories</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <button onclick="loadMemories()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-sync mr-2"></i>Load Memories
+                                </button>
+                            </div>
+                            <div id="memories-container" class="space-y-4">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-memory text-2xl mb-2"></i>
+                                    <p>Click "Load Memories" to view your AI's memories...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RAG Interface -->
+                <div id="rag-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">RAG System</h2>
+                            <p class="text-sm text-gray-600">Retrieval-Augmented Generation for enhanced responses</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <input type="text" id="rag-query" placeholder="Enter your query..." 
+                                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div class="mb-4">
+                                <button onclick="performRAG()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-search mr-2"></i>Search & Generate
+                                </button>
+                            </div>
+                            <div id="rag-results" class="space-y-4">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-search text-2xl mb-2"></i>
+                                    <p>Enter a query to search and generate responses...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email Interface -->
+                <div id="email-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Email Integration</h2>
+                            <p class="text-sm text-gray-600">Configure and manage email access</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Email Configuration</h3>
+                                    <div class="space-y-3">
+                                        <input type="email" id="email-address" placeholder="Email Address" 
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <input type="password" id="email-password" placeholder="App Password" 
+                                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <button onclick="configureEmail()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
+                                            <i class="fas fa-cog mr-2"></i>Configure Email
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Email Analysis</h3>
+                                    <div class="space-y-3">
+                                        <button onclick="analyzeEmails()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-envelope-open mr-2"></i>Analyze Recent Emails
+                                        </button>
+                                        <button onclick="getEmailInsights()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                                            <i class="fas fa-chart-line mr-2"></i>Get Email Insights
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="email-results" class="mt-6">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-envelope text-2xl mb-2"></i>
+                                    <p>Configure email or analyze your inbox...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Web Activity Interface -->
+                <div id="web-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">Web Activity Tracking</h2>
+                            <p class="text-sm text-gray-600">Monitor and analyze your web browsing patterns</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <button onclick="getWebActivity()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors">
+                                    <i class="fas fa-globe mr-2"></i>Get Web Activity
+                                </button>
+                            </div>
+                            <div id="web-activity-results" class="space-y-4">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-globe text-2xl mb-2"></i>
+                                    <p>Click to view your web activity data...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management Interface -->
+                <div id="users-interface" class="feature-panel hidden">
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="border-b border-gray-200 px-6 py-4">
+                            <h2 class="text-lg font-semibold text-gray-900">User Management</h2>
+                            <p class="text-sm text-gray-600">Manage users and system access</p>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <button onclick="loadUsers()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="fas fa-users mr-2"></i>Load Users
+                                </button>
+                            </div>
+                            <div id="users-container" class="space-y-4">
+                                <div class="text-center text-gray-500">
+                                    <i class="fas fa-users text-2xl mb-2"></i>
+                                    <p>Click to view all system users...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Control Panel -->
-            <div class="space-y-6">
-                <!-- Quick Actions -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                    <div class="space-y-3">
-                        <button onclick="testHealth()" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                            <i class="fas fa-heartbeat mr-2"></i>Test Health
-                        </button>
-                        <button onclick="testChat()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                            <i class="fas fa-comment mr-2"></i>Test Chat
-                        </button>
-                        <button onclick="testMemory()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
-                            <i class="fas fa-memory mr-2"></i>Test Memory
-                        </button>
-                        <button onclick="testRAG()" class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors">
-                            <i class="fas fa-search mr-2"></i>Test RAG
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Email Configuration -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Email Setup</h3>
-                    <div class="space-y-3">
-                        <input type="email" id="email-address" placeholder="Email Address" 
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <input type="password" id="email-password" placeholder="App Password" 
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button onclick="configureEmail()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
-                            <i class="fas fa-cog mr-2"></i>Configure Email
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Activity Feed -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Activity Feed</h3>
-                    <div class="activity-feed" id="activity-feed">
-                        <div class="text-center text-gray-500">
-                            <i class="fas fa-stream text-xl mb-2"></i>
-                            <p>No recent activity</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Test Results -->
-        <div class="mt-8">
-            <div class="bg-white rounded-lg shadow-md">
-                <div class="border-b border-gray-200 px-6 py-4">
-                    <h2 class="text-lg font-semibold text-gray-900">Test Results</h2>
-                </div>
-                <div class="p-6">
-                    <div id="test-results" class="space-y-4">
-                        <div class="text-center text-gray-500">
-                            <i class="fas fa-clipboard-list text-2xl mb-2"></i>
-                            <p>Run tests to see results here...</p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Back Button -->
+            <div id="back-button" class="mt-6 hidden">
+                <button onclick="hideFeature()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         const API_BASE = 'http://localhost:8000/api/v1';
+        let currentUser = null;
+        let accessToken = null;
         let chatHistory = [];
 
-        // Initialize dashboard
+        // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
-            refreshStatus();
-            setupWebSocket();
+            // Check if user is already logged in
+            const savedToken = localStorage.getItem('aeon_access_token');
+            const savedUser = localStorage.getItem('aeon_user');
+            
+            if (savedToken && savedUser) {
+                accessToken = savedToken;
+                currentUser = JSON.parse(savedUser);
+                showDashboard();
+            }
         });
+
+        // Login form handler
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    accessToken = data.access_token;
+                    
+                    // Get user profile
+                    const userResponse = await fetch(`${API_BASE}/users/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    
+                    if (userResponse.ok) {
+                        currentUser = await userResponse.json();
+                        
+                        // Save to localStorage
+                        localStorage.setItem('aeon_access_token', accessToken);
+                        localStorage.setItem('aeon_user', JSON.stringify(currentUser));
+                        
+                        showDashboard();
+                    }
+                } else {
+                    const errorData = await response.json();
+                    showLoginError(errorData.detail || 'Login failed');
+                }
+            } catch (error) {
+                showLoginError('Connection error. Please check if the server is running.');
+            }
+        });
+
+        // Fill demo credentials
+        function fillCredentials(username, password) {
+            document.getElementById('login-username').value = username;
+            document.getElementById('login-password').value = password;
+        }
+
+        // Show login error
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            // Update user display
+            document.getElementById('user-display-name').textContent = currentUser.username;
+            document.getElementById('user-role').textContent = currentUser.role;
+            
+            refreshStatus();
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('aeon_access_token');
+            localStorage.removeItem('aeon_user');
+            accessToken = null;
+            currentUser = null;
+            
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        // Show feature
+        function showFeature(feature) {
+            // Hide all feature panels
+            document.querySelectorAll('.feature-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            
+            // Show selected feature
+            document.getElementById(`${feature}-interface`).classList.remove('hidden');
+            
+            // Show feature content and back button
+            document.getElementById('feature-content').classList.remove('hidden');
+            document.getElementById('back-button').classList.remove('hidden');
+            
+            // Hide main dashboard content
+            document.querySelector('.max-w-7xl').style.display = 'none';
+        }
+
+        // Hide feature
+        function hideFeature() {
+            document.getElementById('feature-content').classList.add('hidden');
+            document.getElementById('back-button').classList.add('hidden');
+            document.querySelector('.max-w-7xl').style.display = 'block';
+        }
 
         // Refresh system status
         async function refreshStatus() {
@@ -247,28 +579,6 @@
             }
         }
 
-        // Setup WebSocket connection
-        function setupWebSocket() {
-            const ws = new WebSocket('ws://localhost:8000/api/v1/phase3/ws/1');
-            
-            ws.onopen = function() {
-                addActivity('WebSocket connected', 'success');
-            };
-            
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                addActivity(`Received: ${data.type}`, 'info');
-            };
-            
-            ws.onclose = function() {
-                addActivity('WebSocket disconnected', 'warning');
-            };
-            
-            ws.onerror = function(error) {
-                addActivity('WebSocket error', 'error');
-            };
-        }
-
         // Send chat message
         async function sendMessage() {
             const input = document.getElementById('chat-input');
@@ -281,24 +591,27 @@
             input.value = '';
             
             try {
-                const response = await fetch(`${API_BASE}/test/test-chat`, {
+                const response = await fetch(`${API_BASE}/aeon/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({
                         message: message,
-                        user_id: 1
+                        conversation_id: null
                     })
                 });
                 
-                const data = await response.json();
-                addChatMessage('aeon', data.message.content);
-                addActivity('Chat message sent', 'success');
+                if (response.ok) {
+                    const data = await response.json();
+                    addChatMessage('aeon', data.response);
+                } else {
+                    addChatMessage('aeon', 'Sorry, I encountered an error. Please try again.');
+                }
                 
             } catch (error) {
                 addChatMessage('aeon', 'Sorry, I encountered an error. Please try again.');
-                addActivity('Chat error: ' + error.message, 'error');
             }
         }
 
@@ -329,110 +642,106 @@
             chatHistory.push({ sender, message, timestamp: new Date() });
         }
 
-        // Add activity to feed
-        function addActivity(message, type = 'info') {
-            const feed = document.getElementById('activity-feed');
-            const activityDiv = document.createElement('div');
-            activityDiv.className = 'flex items-center space-x-2 py-2 border-b border-gray-100';
-            
-            const icon = document.createElement('i');
-            icon.className = `fas fa-circle text-xs ${
-                type === 'success' ? 'text-green-500' :
-                type === 'error' ? 'text-red-500' :
-                type === 'warning' ? 'text-yellow-500' : 'text-blue-500'
-            }`;
-            
-            const text = document.createElement('span');
-            text.className = 'text-sm text-gray-700';
-            text.textContent = message;
-            
-            const time = document.createElement('span');
-            time.className = 'text-xs text-gray-500 ml-auto';
-            time.textContent = new Date().toLocaleTimeString();
-            
-            activityDiv.appendChild(icon);
-            activityDiv.appendChild(text);
-            activityDiv.appendChild(time);
-            
-            feed.appendChild(activityDiv);
-            feed.scrollTop = feed.scrollHeight;
-        }
-
-        // Test functions
-        async function testHealth() {
-            addActivity('Testing health endpoint...', 'info');
+        // Load memories
+        async function loadMemories() {
             try {
-                const response = await fetch(`${API_BASE}/health`);
-                const data = await response.json();
-                addTestResult('Health Test', 'success', JSON.stringify(data, null, 2));
-                addActivity('Health test passed', 'success');
-            } catch (error) {
-                addTestResult('Health Test', 'error', error.message);
-                addActivity('Health test failed', 'error');
-            }
-        }
-
-        async function testChat() {
-            addActivity('Testing chat endpoint...', 'info');
-            try {
-                const response = await fetch(`${API_BASE}/test/test-chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: 'Hello AEON!', user_id: 1 })
+                const response = await fetch(`${API_BASE}/aeon/memories/enhanced`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
                 });
-                const data = await response.json();
-                addTestResult('Chat Test', 'success', JSON.stringify(data, null, 2));
-                addActivity('Chat test passed', 'success');
+                
+                if (response.ok) {
+                    const memories = await response.json();
+                    displayMemories(memories);
+                } else {
+                    showError('Failed to load memories');
+                }
             } catch (error) {
-                addTestResult('Chat Test', 'error', error.message);
-                addActivity('Chat test failed', 'error');
+                showError('Error loading memories: ' + error.message);
             }
         }
 
-        async function testMemory() {
-            addActivity('Testing memory endpoint...', 'info');
-            try {
-                const response = await fetch(`${API_BASE}/aeon/memories/enhanced`);
-                const data = await response.json();
-                addTestResult('Memory Test', 'success', JSON.stringify(data, null, 2));
-                addActivity('Memory test passed', 'success');
-            } catch (error) {
-                addTestResult('Memory Test', 'error', error.message);
-                addActivity('Memory test failed', 'error');
+        // Display memories
+        function displayMemories(memories) {
+            const container = document.getElementById('memories-container');
+            
+            if (memories.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500"><p>No memories found</p></div>';
+                return;
             }
+            
+            container.innerHTML = memories.map(memory => `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold text-gray-900">${memory.memory_type}</h4>
+                        <span class="text-xs text-gray-500">Importance: ${memory.importance}</span>
+                    </div>
+                    <p class="text-gray-700">${memory.content}</p>
+                    <div class="text-xs text-gray-500 mt-2">
+                        Created: ${new Date(memory.created_at).toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
         }
 
-        async function testRAG() {
-            addActivity('Testing RAG endpoint...', 'info');
+        // Perform RAG search
+        async function performRAG() {
+            const query = document.getElementById('rag-query').value.trim();
+            if (!query) return;
+            
             try {
                 const response = await fetch(`${API_BASE}/aeon/context/retrieve`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: 'test query', user_id: 1 })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        user_id: currentUser.id
+                    })
                 });
-                const data = await response.json();
-                addTestResult('RAG Test', 'success', JSON.stringify(data, null, 2));
-                addActivity('RAG test passed', 'success');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayRAGResults(data);
+                } else {
+                    showError('RAG search failed');
+                }
             } catch (error) {
-                addTestResult('RAG Test', 'error', error.message);
-                addActivity('RAG test failed', 'error');
+                showError('Error performing RAG search: ' + error.message);
             }
         }
 
+        // Display RAG results
+        function displayRAGResults(data) {
+            const container = document.getElementById('rag-results');
+            container.innerHTML = `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">RAG Results</h4>
+                    <pre class="text-sm text-gray-700 bg-gray-50 p-3 rounded overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Configure email
         async function configureEmail() {
             const email = document.getElementById('email-address').value;
             const password = document.getElementById('email-password').value;
             
             if (!email || !password) {
-                addActivity('Please enter email and password', 'warning');
+                showError('Please enter email and password');
                 return;
             }
             
-            addActivity('Configuring email access...', 'info');
             try {
                 const response = await fetch(`${API_BASE}/aeon/enhanced/email/configure`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    },
                     body: JSON.stringify({
                         email: email,
                         password: password,
@@ -441,66 +750,171 @@
                     })
                 });
                 
-                const data = await response.json();
                 if (response.ok) {
                     document.getElementById('email-status').textContent = 'Configured';
-                    addActivity('Email configured successfully', 'success');
-                    addTestResult('Email Configuration', 'success', JSON.stringify(data, null, 2));
+                    showSuccess('Email configured successfully');
                 } else {
-                    throw new Error(data.detail || 'Configuration failed');
+                    const errorData = await response.json();
+                    showError('Email configuration failed: ' + (errorData.detail || 'Unknown error'));
                 }
             } catch (error) {
-                addActivity('Email configuration failed: ' + error.message, 'error');
-                addTestResult('Email Configuration', 'error', error.message);
+                showError('Error configuring email: ' + error.message);
             }
         }
 
-        // Add test result to UI
-        function addTestResult(testName, status, result) {
-            const resultsContainer = document.getElementById('test-results');
+        // Analyze emails
+        async function analyzeEmails() {
+            try {
+                const response = await fetch(`${API_BASE}/aeon/enhanced/email/analyze`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayEmailResults(data);
+                } else {
+                    showError('Failed to analyze emails');
+                }
+            } catch (error) {
+                showError('Error analyzing emails: ' + error.message);
+            }
+        }
+
+        // Get email insights
+        async function getEmailInsights() {
+            try {
+                const response = await fetch(`${API_BASE}/aeon/enhanced/email/insights`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayEmailResults(data);
+                } else {
+                    showError('Failed to get email insights');
+                }
+            } catch (error) {
+                showError('Error getting email insights: ' + error.message);
+            }
+        }
+
+        // Display email results
+        function displayEmailResults(data) {
+            const container = document.getElementById('email-results');
+            container.innerHTML = `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Email Analysis</h4>
+                    <pre class="text-sm text-gray-700 bg-gray-50 p-3 rounded overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Get web activity
+        async function getWebActivity() {
+            try {
+                const response = await fetch(`${API_BASE}/aeon/enhanced/web/activity`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayWebActivity(data);
+                } else {
+                    showError('Failed to get web activity');
+                }
+            } catch (error) {
+                showError('Error getting web activity: ' + error.message);
+            }
+        }
+
+        // Display web activity
+        function displayWebActivity(data) {
+            const container = document.getElementById('web-activity-results');
+            container.innerHTML = `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Web Activity</h4>
+                    <pre class="text-sm text-gray-700 bg-gray-50 p-3 rounded overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users/`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    displayUsers(users);
+                } else {
+                    showError('Failed to load users');
+                }
+            } catch (error) {
+                showError('Error loading users: ' + error.message);
+            }
+        }
+
+        // Display users
+        function displayUsers(users) {
+            const container = document.getElementById('users-container');
             
-            // Clear placeholder if exists
-            if (resultsContainer.children.length === 1 && resultsContainer.children[0].classList.contains('text-center')) {
-                resultsContainer.innerHTML = '';
+            if (users.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500"><p>No users found</p></div>';
+                return;
             }
             
-            const resultDiv = document.createElement('div');
-            resultDiv.className = 'border border-gray-200 rounded-lg p-4';
-            
-            const header = document.createElement('div');
-            header.className = 'flex items-center justify-between mb-2';
-            
-            const title = document.createElement('h3');
-            title.className = 'font-semibold text-gray-900';
-            title.textContent = testName;
-            
-            const statusBadge = document.createElement('span');
-            statusBadge.className = `px-2 py-1 rounded text-xs font-medium ${
-                status === 'success' ? 'bg-green-100 text-green-800' :
-                status === 'error' ? 'bg-red-100 text-red-800' :
-                'bg-yellow-100 text-yellow-800'
-            }`;
-            statusBadge.textContent = status.toUpperCase();
-            
-            header.appendChild(title);
-            header.appendChild(statusBadge);
-            
-            const content = document.createElement('pre');
-            content.className = 'text-sm text-gray-700 bg-gray-50 p-3 rounded overflow-x-auto';
-            content.textContent = result;
-            
-            resultDiv.appendChild(header);
-            resultDiv.appendChild(content);
-            
-            resultsContainer.appendChild(resultDiv);
+            container.innerHTML = users.map(user => `
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold text-gray-900">${user.username}</h4>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${user.role}</span>
+                    </div>
+                    <p class="text-gray-600">${user.email}</p>
+                    <p class="text-gray-700">${user.full_name || 'No name provided'}</p>
+                    <div class="text-xs text-gray-500 mt-2">
+                        Created: ${new Date(user.created_at).toLocaleString()}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility functions
+        function showError(message) {
+            // You can implement a toast notification system here
+            console.error(message);
+            alert(message);
+        }
+
+        function showSuccess(message) {
+            // You can implement a toast notification system here
+            console.log(message);
+            alert(message);
         }
 
         // Enter key to send message
-        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+        document.getElementById('chat-input')?.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
+
+        // Enter key for RAG query
+        document.getElementById('rag-query')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performRAG();
+            }
+        });
     </script>
 </body>
+</html> 
 </html> 

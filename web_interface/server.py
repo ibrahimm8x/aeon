@@ -27,6 +27,12 @@ class CORSHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
     
+    def do_GET(self):
+        # Serve login.html as default page
+        if self.path == '/':
+            self.path = '/login.html'
+        super().do_GET()
+    
     def log_message(self, format, *args):
         # Custom logging format
         print(f"[{self.log_date_time_string()}] {format % args}")
