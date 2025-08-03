@@ -482,7 +482,7 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    addChatMessage('aeon', data.response);
+                    addChatMessage('aeon', data.message.content);
                 } else {
                     addChatMessage('aeon', 'Sorry, I encountered an error. Please try again.');
                 }
@@ -522,7 +522,7 @@
         // Load memories
         async function loadMemories() {
             try {
-                const response = await fetch(`${API_BASE}/aeon/memories/enhanced`, {
+                const response = await fetch(`${API_BASE}/aeon/memories`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
@@ -568,16 +568,11 @@
             if (!query) return;
             
             try {
-                const response = await fetch(`${API_BASE}/aeon/context/retrieve`, {
-                    method: 'POST',
+                const response = await fetch(`${API_BASE}/aeon/context/retrieve?query=${encodeURIComponent(query)}&max_memories=5`, {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: JSON.stringify({
-                        query: query,
-                        user_id: currentUser.id
-                    })
+                    }
                 });
                 
                 if (response.ok) {
