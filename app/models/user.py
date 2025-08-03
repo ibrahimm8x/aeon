@@ -10,6 +10,7 @@ from enum import Enum
 
 class UserRole(str, Enum):
     """User roles"""
+    GOD_AEON = "god_aeon"  # Special role for the creator/master user
     OWNER = "owner"
     ADMIN = "admin"
     USER = "user"

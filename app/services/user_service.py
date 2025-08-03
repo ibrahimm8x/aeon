@@ -41,13 +41,21 @@ class UserService:
             
             # Create new user
             hashed_password = get_password_hash(user_data.password)
+            
+            # Check if this is the first user (make them GOD_AEON) or assign appropriate role
+            existing_users = db.query(User).count()
+            if existing_users == 0:
+                role = UserRole.GOD_AEON.value  # First user becomes GOD_AEON
+            else:
+                role = UserRole.OWNER.value  # Subsequent users become owners
+                
             db_user = User(
                 username=user_data.username,
                 email=user_data.email,
                 hashed_password=hashed_password,
                 full_name=user_data.full_name,
                 bio=user_data.bio,
-                role=UserRole.OWNER.value  # First user is always owner
+                role=role
             )
             
             db.add(db_user)
